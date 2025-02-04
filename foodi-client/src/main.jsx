@@ -1,14 +1,23 @@
-
-import { createRoot } from 'react-dom/client'
-import './index.css'
+import { createRoot } from 'react-dom/client';
+import './index.css';
 
 import router from './Router/Router';
 import { RouterProvider } from 'react-router-dom';
 import AuthProvider from './contexts/AuthProvider';
 
-createRoot(document.getElementById('root')).render(
+// tankstack
+import {
+QueryClient,
+QueryClientProvider,
+} from '@tanstack/react-query';
 
-    <AuthProvider>
-        <RouterProvider router={router} />
-    </AuthProvider>
-)
+// Create a client
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById('root')).render(
+<AuthProvider>
+    <QueryClientProvider client={queryClient}>
+    <RouterProvider router={router} />
+    </QueryClientProvider>
+</AuthProvider>
+);
