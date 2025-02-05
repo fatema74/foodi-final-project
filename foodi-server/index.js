@@ -1,61 +1,34 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
+const express = require('express');
+const app = express();
+const cors = require('cors');
 const port = process.env.PORT || 5000;
-require('dotenv').config()
-
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 // middleware
 app.use(cors());
 app.use(express.json());
 
-
-
 // mongodb config
 
-const { MongoClient, ServerApiVersion, CURSOR_FLAGS } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@foodi-server.r97od.mongodb.net/?retryWrites=true&w=majority&appName=foodi-server`;
+mongoose
+  .connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@foodi-server.r97od.mongodb.net/foodi-server?retryWrites=true&w=majority`
+  )
+  .then(console.log('MongoDB Connection Successfully!'))
+  .catch(error => console.log('Error connecting to MongoDB', error));
 
+// import routes here
+const menuRoutes = require('./api/routes/menuRoutes');
+const cartRoutes = require('./api/routes/cartRoutes');
 
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
-  try {
-    await client.connect();
-
-    // database & collections
-    const menuCollections = client.db('foodi-client').collection('menus');
-    const cartCollections = client.db("foodi-client").collection('cartItems');
-
-    app.get('/menu', async(req, res) =>{
-      const result = await menuCollections.find().toArray();
-      res.send(result);
-    })
-
-
-    
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
-}
-run().catch(console.dir);
-
+app.use('/menu', menuRoutes);
+app.use('/carts', cartRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Hello Fatema!')
-})
+  res.send('Hello Fatema!');
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
